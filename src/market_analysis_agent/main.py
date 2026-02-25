@@ -1,37 +1,78 @@
 #!/usr/bin/env python
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
 import sys
 import warnings
 from datetime import datetime
 import textwrap
 from market_analysis_agent.utils.output_handler import save_output, print_posts
 from market_analysis_agent.crew import MarketAnalysisAgent
-from dotenv import load_dotenv
+
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
-
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
 
 def run():
     """
     Run the crew.
     """
-    inputs = {
-        'subject': 'Market analysis based on the current trandes in 2026',
-        'current_year': str(datetime.now().year)
-    }
+    os.makedirs('output', exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = f'output/execution_log_{timestamp}.md'
 
-    try:
-        load_dotenv()
-        result = MarketAnalysisAgent().crew().kickoff(inputs=inputs)
-        output, saved_file = save_output(result)
-        print_posts(output)
-        print(f"Saved to: {saved_file}")
+    class Tee:
+        def __init__(self, terminal, file):
+            self.terminal = terminal
+            self.file = file
+        
+        def write(self, message):
+            self.terminal.write(message)
+            self.file.write(message)
+            self.file.flush()
+        
+        def flush(self):
+            self.terminal.flush()
+            self.file.flush()
 
-    except Exception as e:
-        raise Exception(f"An error occurred while running the crew: {e}")
+    with open(log_file, 'w') as f:
+        # Write header
+        f.write(f"# Execution Log\n\n")
+        f.write(f"**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        f.write(f"**Topic:** Market analysis based on current trends in 2026\n\n")
+        f.write(f"---\n\n")
+        f.write(f"## Agent Execution Output\n\n")
+        f.write(f"```\n")
+
+        # Redirect stdout and stderr
+        sys.stdout = Tee(sys.__stdout__, f)
+        sys.stderr = Tee(sys.__stderr__, f)
+
+        try:
+            inputs = {
+                'subject': 'Market analysis based on the current trandes in 2026',
+                'current_year': str(datetime.now().year)
+            }
+            result = MarketAnalysisAgent().crew().kickoff(inputs=inputs)
+            output, json_file, social_md_file = save_output(result)
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+            f.write("```\n\n")
+            f.write(f"## Summary\n\n")
+            f.write(f"- JSON saved to: `{json_file}`\n")
+            f.write(f"- Social media saved to: `{social_md_file}`\n")
+
+            print_posts(output)
+            print(f"\nExecution log saved to: {log_file}")
+
+        except Exception as e:
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+            f.write("```\n\n")
+            f.write(f"## Error\n\n")
+            f.write(f"```\n{str(e)}\n```\n")
+            raise Exception(f"An error occurred while running the crew: {e}")
 
 
 def train():

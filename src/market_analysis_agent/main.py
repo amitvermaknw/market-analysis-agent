@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import sys
 import warnings
-
 from datetime import datetime
+import textwrap
+from market_analysis_agent.utils.output_handler import save_output, print_posts
 
 from market_analysis_agent.crew import MarketAnalysisAgent
 
@@ -18,12 +19,16 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'AI LLMs',
+        'subject': 'Market analysis based on the current trandes in 2026',
         'current_year': str(datetime.now().year)
     }
 
     try:
-        MarketAnalysisAgent().crew().kickoff(inputs=inputs)
+        result = MarketAnalysisAgent().crew().kickoff(inputs=inputs)
+        output, saved_file = save_output(result)
+        print_posts(output)
+        print(f"Saved to: {saved_file}")
+
     except Exception as e:
         raise Exception(f"An error occurred while running the crew: {e}")
 

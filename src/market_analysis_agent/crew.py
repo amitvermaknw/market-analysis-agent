@@ -17,10 +17,12 @@ class MarketAnalysisAgent():
 
     agents: List[BaseAgent]
     tasks: List[Task]
-    groq_llm = LLM(
-        model="groq/llama-3.3-70b-versatile",
-        api_key=os.environ["GROQ_API_KEY"]
-    )
+
+    def __init__(self):
+        self.groq_llm = LLM(
+            model="groq/llama-3.3-70b-versatile",
+            api_key=os.environ["GROQ_API_KEY"]
+        )
 
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended

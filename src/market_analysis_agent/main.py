@@ -4,8 +4,8 @@ import warnings
 from datetime import datetime
 import textwrap
 from market_analysis_agent.utils.output_handler import save_output, print_posts
-
 from market_analysis_agent.crew import MarketAnalysisAgent
+from dotenv import load_dotenv
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -24,6 +24,7 @@ def run():
     }
 
     try:
+        load_dotenv()
         result = MarketAnalysisAgent().crew().kickoff(inputs=inputs)
         output, saved_file = save_output(result)
         print_posts(output)

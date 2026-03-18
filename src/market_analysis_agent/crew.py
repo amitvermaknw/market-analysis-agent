@@ -22,10 +22,6 @@ class MarketAnalysisAgent():
 
     agents: List[BaseAgent]
     tasks: List[Task]
-
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
    
     @agent
     def market_news_monitor_agent(self) -> Agent:
@@ -66,9 +62,6 @@ class MarketAnalysisAgent():
             tools=[SerperDevTool()]
         )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
     def monitor_financial_news_task(self) -> Task:
         return Task(
